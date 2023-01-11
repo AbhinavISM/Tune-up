@@ -10,19 +10,18 @@ import com.androiddevs.mvvmnewsapp.models.Article
 import com.androiddevs.mvvmnewsapp.models.NewsResponse
 import com.androiddevs.mvvmnewsapp.repository.NewsRepository
 import com.androiddevs.mvvmnewsapp.util.Resource
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import javax.inject.Inject
 
-class NewsViewModel(application: Application) : AndroidViewModel(application) {
-    var newsRepository : NewsRepository? = null
+@HiltViewModel
+class NewsViewModel @Inject constructor (var newsRepository : NewsRepository) : ViewModel() {
     val breakingNews: MutableLiveData<Resource<NewsResponse>> = MutableLiveData()
     var breakingNewsPage = 1
     val searchNews: MutableLiveData<Resource<NewsResponse>> = MutableLiveData()
     var searchNewsPage = 1
 
-    init {
-        newsRepository = NewsRepository(ArticleDatabase(application))
-    }
     init {
         getBreakingNews("us")
     }
@@ -30,13 +29,13 @@ class NewsViewModel(application: Application) : AndroidViewModel(application) {
     fun getBreakingNews(countryCode: String) = viewModelScope.launch {
         breakingNews.postValue(Resource.Loading())
         val response = newsRepository?.getBreakingNews(countryCode, breakingNewsPage)
-        breakingNews.postValue(response?.let { handleBreakingNewsResponse(it) })
+        breakingNews.postValue(handleBreakingNewsResponse(response))
     }
 
     fun getSearchNews(searchQuery: String) = viewModelScope.launch {
         searchNews.postValue(Resource.Loading())
         val response = newsRepository?.getSearchNews(searchQuery, searchNewsPage)
-        searchNews.postValue(response?.let { handleSearchNewsResponse(it) })
+        searchNews.postValue(handleBreakingNewsResponse(response))
     }
 
     private fun handleBreakingNewsResponse(response: Response<NewsResponse>) : Resource<NewsResponse> {
