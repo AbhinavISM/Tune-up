@@ -1,7 +1,9 @@
 package com.androiddevs.mvvmnewsapp.ui.fragments
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -11,6 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.androiddevs.mvvmnewsapp.R
 import com.androiddevs.mvvmnewsapp.adapters.NewsAdapter
+import com.androiddevs.mvvmnewsapp.databinding.FragmentArticleBinding
+import com.androiddevs.mvvmnewsapp.databinding.FragmentSavedNewsBinding
 import com.androiddevs.mvvmnewsapp.models.Article
 import com.androiddevs.mvvmnewsapp.ui.NewsActivity
 import com.androiddevs.mvvmnewsapp.ui.NewsViewModel
@@ -24,9 +28,19 @@ import javax.inject.Inject
 class SavedNewsFragment : Fragment(R.layout.fragment_saved_news) {
 
     val viewModel: NewsViewModel by activityViewModels()
-//    lateinit var newsAdapter: NewsAdapter
+    private var fragmentSavedNewsBinding : FragmentSavedNewsBinding? = null;
+    private val binding get() = fragmentSavedNewsBinding!!
 @Inject
 lateinit var newsAdapter: NewsAdapter
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        fragmentSavedNewsBinding = FragmentSavedNewsBinding.inflate(inflater, container, false)
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -71,14 +85,14 @@ lateinit var newsAdapter: NewsAdapter
             attachToRecyclerView(rvSavedNews)
         }
 
-        viewModel.getSavedNews()?.observe(viewLifecycleOwner, Observer {
+        viewModel.getSavedNews().observe(viewLifecycleOwner, Observer {
             newsAdapter.differ.submitList(it)
         })
     }
 
     private fun setupRecyclerView() {
 //        newsAdapter = NewsAdapter()
-        rvSavedNews.apply {
+        binding.rvSavedNews.apply {
             adapter = newsAdapter
             layoutManager = LinearLayoutManager(activity)
         }

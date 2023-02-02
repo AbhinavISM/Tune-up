@@ -28,13 +28,13 @@ class NewsViewModel @Inject constructor (var newsRepository : NewsRepository) : 
 
     fun getBreakingNews(countryCode: String) = viewModelScope.launch {
         breakingNews.postValue(Resource.Loading())
-        val response = newsRepository?.getBreakingNews(countryCode, breakingNewsPage)
+        val response = newsRepository.getBreakingNews(countryCode, breakingNewsPage)
         breakingNews.postValue(handleBreakingNewsResponse(response))
     }
 
     fun getSearchNews(searchQuery: String) = viewModelScope.launch {
         searchNews.postValue(Resource.Loading())
-        val response = newsRepository?.getSearchNews(searchQuery, searchNewsPage)
+        val response = newsRepository.getSearchNews(searchQuery, searchNewsPage)
         searchNews.postValue(handleBreakingNewsResponse(response))
     }
 
@@ -57,12 +57,12 @@ class NewsViewModel @Inject constructor (var newsRepository : NewsRepository) : 
     }
 
     fun upsert(article: Article) = viewModelScope.launch {
-        newsRepository?.upsert(article)
+        newsRepository.upsert(article)
     }
 
-    fun getSavedNews() = newsRepository?.getSavedNews()
+    fun getSavedNews() = newsRepository.getSavedNews()
 
     fun deleteArticle(article: Article) = viewModelScope.launch {
-        newsRepository?.deleteArticle(article)
+        newsRepository.deleteArticle(article)
     }
 }
