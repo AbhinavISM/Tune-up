@@ -11,6 +11,10 @@ import com.androiddevs.mvvmnewsapp.models.NewsResponse
 import com.androiddevs.mvvmnewsapp.repository.NewsRepository
 import com.androiddevs.mvvmnewsapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import javax.inject.Inject
@@ -26,35 +30,45 @@ class NewsViewModel @Inject constructor (var newsRepository : NewsRepository) : 
         getBreakingNews("us")
     }
 
-    fun getBreakingNews(countryCode: String) = viewModelScope.launch {
-        breakingNews.postValue(Resource.Loading())
-        val response = newsRepository?.getBreakingNews(countryCode, breakingNewsPage)
-        breakingNews.postValue(handleBreakingNewsResponse(response))
+    fun getBreakingNews(countryCode: String) {
+        newsRepository.getBreakingNews(countryCode, breakingNewsPage).onEach {
+        breakingNews.postValue(it)
+       }.launchIn(viewModelScope)
     }
 
-    fun getSearchNews(searchQuery: String) = viewModelScope.launch {
-        searchNews.postValue(Resource.Loading())
-        val response = newsRepository?.getSearchNews(searchQuery, searchNewsPage)
-        searchNews.postValue(handleBreakingNewsResponse(response))
+    fun getSearchNews(searchQuery: String){
+        newsRepository.getSearchNews(searchQuery, searchNewsPage).onEach {
+            searchNews.postValue(it)
+        }.launchIn(viewModelScope)
     }
+//    fun getBreakingNews(countryCode: String) = viewModelScope.launch {
+//        breakingNews.postValue(Resource.Loading())
+//        val response = newsRepository?.getBreakingNews(countryCode, breakingNewsPage)
+//        breakingNews.postValue(handleBreakingNewsResponse(response))}
 
-    private fun handleBreakingNewsResponse(response: Response<NewsResponse>) : Resource<NewsResponse> {
-        if(response.isSuccessful) {
-            response.body()?.let { resultResponse ->
-                return Resource.Success(resultResponse)
-            }
-        }
-        return Resource.Error(response.message())
-    }
-
-    private fun handleSearchNewsResponse(response: Response<NewsResponse>) : Resource<NewsResponse> {
-        if(response.isSuccessful) {
-            response.body()?.let { resultResponse ->
-                return Resource.Success(resultResponse)
-            }
-        }
-        return Resource.Error(response.message())
-    }
+//    fun getSearchNews(searchQuery: String) = viewModelScope.launch {
+//        searchNews.postValue(Resource.Loading())
+//        val response = newsRepository?.getSearchNews(searchQuery, searchNewsPage)
+//        searchNews.postValue(handleBreakingNewsResponse(response))
+//    }
+//
+//    private fun handleBreakingNewsResponse(response: Response<NewsResponse>) : Resource<NewsResponse> {
+//        if(response.isSuccessful) {
+//            response.body()?.let { resultResponse ->
+//                return Resource.Success(resultResponse)
+//            }
+//        }
+//        return Resource.Error(response.message())
+//    }
+//
+//    private fun handleSearchNewsResponse(response: Response<NewsResponse>) : Resource<NewsResponse> {
+//        if(response.isSuccessful) {
+//            response.body()?.let { resultResponse ->
+//                return Resource.Success(resultResponse)
+//            }
+//        }
+//        return Resource.Error(response.message())
+//    }
 
     fun upsert(article: Article) = viewModelScope.launch {
         newsRepository?.upsert(article)
